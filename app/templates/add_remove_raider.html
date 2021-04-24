@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% for raider in raiders %}
+    <div><p>{{ raider.name}} {{ raider.realm }}-{{ raider.guild }} {{ raider.game_class }} {{ raider.role }}</b></p></div>
+    {% endfor %}
+    <h1>Add Remove Raider</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.operation.label }}<br>
+            {{ form.operation(size=1) }}<br>
+            {% for error in form.operation.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.name.label }}<br>
+            {{ form.name(size=32) }}<br>
+            {% for error in form.name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.game_class.label }}<br>
+            {{ form.game_class(size=1) }}<br>
+            {% for error in form.game_class.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.role.label }}<br>
+            {{ form.role(size=1) }}<br>
+            {% for error in form.role.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
+

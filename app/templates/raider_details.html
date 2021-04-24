@@ -1,0 +1,65 @@
+
+
+{% extends "base.html" %}
+
+{% block content %}
+	<h1>Update Raider Details: {{ raider_name }}</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.game_class.label }}<br>
+            {{ form.game_class(size=1) }}<br>
+            {% for error in form.game_class.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.role.label }}<br>
+            {{ form.role(size=1) }}<br>
+            {% for error in form.role.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.main.label }}<br>
+            {{ form.main(size=1) }}<br>
+            {% for error in form.main.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.partner.label }}<br>
+            {{ form.partner(size=1) }}<br>
+            {% for error in form.partner.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.friends.label }}<br>
+            {{ form.friends(size=50) }}<br>
+            {% for error in form.friends.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.profession1.label }}<br>
+            {{ form.profession1(size=1) }}<br>
+            {% for error in form.profession1.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.profession2.label }}<br>
+            {{ form.profession2(size=1) }}<br>
+            {% for error in form.profession2.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+		<p>{{ form.has_cooking() }} {{ form.has_cooking.label }}</p>
+		<p>{{ form.has_first_aid() }} {{ form.has_first_aid.label }}</p>
+		<p>{{ form.has_fishing() }} {{ form.has_fishing.label }}</p>
+		<p>{{ form.is_raid_leader() }} {{ form.is_raid_leader.label }}</p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
+
