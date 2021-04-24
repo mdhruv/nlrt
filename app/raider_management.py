@@ -36,12 +36,12 @@ def _handle_add(form):
     raider = Raider.query.filter_by(name=form.name.data).first()
     if raider is not None:
         flash('Raider already exists: %s' % raider.name)
-        return redirect(url_for('raider_management'))
+        return redirect(url_for('add_remove_raider'))
     flash('Adding Raider: %s' % form.name.data)
     raider = Raider(name=form.name.data, game_class=form.game_class.data, role=form.role.data, guild=current_user.guild, realm=current_user.realm)
     db.session.add(raider)
     db.session.commit()
-    return redirect(url_for('raider_management'))
+    return redirect(url_for('add_remove_raider'))
 
 def _handle_remove(form):
     raider = Raider.query.filter_by(name=form.name.data).first()
@@ -51,7 +51,7 @@ def _handle_remove(form):
         db.session.commit()
     else:
         flash('Unable to Remove Raider: %s' % form.name.data)
-    return redirect(url_for('raider_management'))
+    return redirect(url_for('add_remove_raider'))
 
 def _parse_friends(selected_raider, friends_string):
     friends_string_split = friends_string.lower().replace(',', ' ').split()
@@ -122,7 +122,7 @@ def HandleUpdateRaider():
     form = UpdateRaiderForm()           
     raiders = Raider.query.filter_by(guild=current_user.guild, realm=current_user.realm)
     if raiders.count() == 0:
-        return redirect(url_for('raider_management'))
+        return redirect(url_for('add_remove_raider'))
     form.name.choices = list(map(lambda x: x.name, raiders))
     if form.validate_on_submit():
         selected_raider = Raider.query.filter_by(guild=current_user.guild, realm=current_user.realm, name=form.name.data)
