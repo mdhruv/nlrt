@@ -14,6 +14,9 @@
         <a href="{{ url_for('login') }}">Login</a>
         {% else %}
         <a href="{{ url_for('logout') }}">Logout</a>
+		<a href="{{ url_for('add_remove_raider') }}">Add/Remove Raider</a>
+		<a href="{{ url_for('update_raider') }}">Update Raider</a>
+		<a href="{{ url_for('raid_split') }}">Raid Split</a>
         {% endif %}
     </div>
         <hr>

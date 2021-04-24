@@ -1,6 +1,9 @@
 from app import app, db
 from app.forms import LoginForm, RegistrationForm
-from app.models import User
+from app.raider_management import UpdateRaiderForm, HandleAddRemoveRaider, HandleUpdateRaider, HandleRaiderDetails
+from app.raid_split import RaidSplitForm, HandleRaidSplit
+from app.models.user import User
+from app.models.raider import Raider
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -39,10 +42,26 @@ def register():
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
+        user = User(username=form.username.data, email=form.email.data, realm=form.realm.data, guild=form.guild.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
+@app.route('/add_remove_raider', methods=['GET', 'POST'])
+def add_remove_raider():
+    return HandleAddRemoveRaider()
+    
+@app.route('/update_raider', methods=['GET', 'POST'])
+def update_raider():
+    return HandleUpdateRaider()
+
+@app.route('/raid_split', methods=['GET', 'POST'])
+def raid_split():
+    return HandleRaidSplit()
+
+@app.route('/raider_details/<raider_name>', methods=['GET', 'POST'])
+def raider_details(raider_name=None):
+    return HandleRaiderDetails(raider_name)

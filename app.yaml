@@ -1,1 +1,4 @@
 runtime: python39
+
+beta_settings: 
+  cloud_sql_instances: nlrt-311223:us-west3:nlrt1
