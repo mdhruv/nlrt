@@ -1,7 +1,7 @@
 from app import app, db
-from app.forms import LoginForm, RegistrationForm
-from app.raider_management import UpdateRaiderForm, HandleAddRemoveRaider, HandleUpdateRaider, HandleRaiderDetails
-from app.raid_split import RaidSplitForm, HandleRaidSplit
+from app.login_form import LoginForm, RegistrationForm
+from app.raider_management_form import UpdateRaiderForm, HandleAddRemoveRaider, HandleUpdateRaider, HandleRaiderDetails
+from app.raid_split_form import RaidSplitForm, HandleRaidSplit
 from app.models.user import User
 from app.models.raider import Raider
 from flask import render_template, flash, redirect, url_for, request

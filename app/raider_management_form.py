@@ -73,10 +73,8 @@ def _parse_friends(selected_raider, friends_string):
     return friends
 
 def _update_partner(selected_raider, partner_string):
-    print("Partner String: %s" % partner_string)
     if partner_string == 'None':
         old_partner = selected_raider.partner
-        print("Removing Partner %s" % old_partner)
         if old_partner is not None:
             old_partner.partner = None
         selected_raider.partner = None
@@ -84,7 +82,6 @@ def _update_partner(selected_raider, partner_string):
     partner = Raider.query.filter_by(guild=current_user.guild, realm=current_user.realm).filter(func.lower(Raider.name) == partner_string).first()
     if partner is None or partner.name == selected_raider.name:
         return None
-    print("Updateing Partner %s" % partner.name)
     selected_raider.partner = partner
     partner.partner = selected_raider
     return partner
@@ -135,7 +132,6 @@ def HandleRaiderDetails(raider_name):
     if not current_user.is_authenticated:
         return redirect(url_for('login'))
     selected_raider = Raider.query.filter_by(guild=current_user.guild, realm=current_user.realm, name=raider_name).first()
-    print("Selected Raider: %s" % selected_raider)
     if selected_raider is None:
         redirect(url_for('update_raider'))
     form = RaiderDetailForm() 
@@ -148,7 +144,7 @@ def HandleRaiderDetails(raider_name):
         form.game_class.data = selected_raider.game_class
         form.role.data = selected_raider.role
         if selected_raider.main:
-            form.main.data = selected_raider.main
+            form.main.data = selected_raider.main.name
         if selected_raider.partner:
             form.partner.data = selected_raider.partner.name
         form.friends.data = ", ".join(list(map(lambda x: x.name, selected_raider.friends)))
@@ -156,12 +152,15 @@ def HandleRaiderDetails(raider_name):
             form.profession1.data = selected_raider.profession1
         if selected_raider.profession2:
             form.profession2.data = selected_raider.profession2
-        form.has_cooking.data = selected_raider.has_cooking
-        form.has_first_aid.data = selected_raider.has_first_aid
-        form.has_cooking.data = selected_raider.has_fishing
-        form.is_raid_leader.data = selected_raider.is_raid_leader
+        if selected_raider.has_cooking:
+            form.has_cooking.render_kw = {'checked': True}
+        if selected_raider.has_first_aid:
+            form.has_first_aid.render_kw = {'checked': True}
+        if selected_raider.has_fishing:
+            form.has_fishing.render_kw = {'checked': True}
+        if selected_raider.is_raid_leader:
+            form.is_raid_leader.render_kw = {'checked': True}
     else:
-        print("FORM DATA: %s" % form.partner.data)
         friends = _parse_friends(selected_raider, form.friends.data)
         if friends is None:
             flash('Error parsing friends list: %s' % form.friends.data)
@@ -191,6 +190,7 @@ def HandleRaiderDetails(raider_name):
         selected_raider.has_cooking = form.has_cooking.data
         selected_raider.has_first_aid = form.has_first_aid.data
         selected_raider.has_fishing = form.has_fishing.data
+        selected_raider.is_raid_leader = form.is_raid_leader.data
         flash('Successfully Updated: %s' % selected_raider.name)
         db.session.commit()
         return redirect(url_for('update_raider'))

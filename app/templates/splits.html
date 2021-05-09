@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h1>Splits</h1>
+    {% for split in splits %}
+		<table style="width:100%">
+		{% set table = split.table_format() %}
+		{% for row in table %}
+			<tr>
+			{% for item in row %}
+				<td>{{item}}</td>
+			{% endfor %}
+			</tr>
+		{% endfor %}
+		</table>
+	</br>
+    {% endfor %}
+{% endblock %}
+

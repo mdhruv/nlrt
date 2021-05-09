@@ -1,4 +1,4 @@
-from app import db, login
+from app import db, login, constants
 from sqlalchemy import Table, Column, Integer, String, ForeignKey, Boolean
 
 partner_table = Table("partner_table", db.Model.metadata,
@@ -36,6 +36,31 @@ class Raider(db.Model):
                         primaryjoin=id==partner_table.c.left_partner_id,
                         secondaryjoin=id==partner_table.c.right_partner_id)
                         
+    def is_main(self):
+        if self.main:
+            return False
+        return True
+        
+    def get_main(self):
+        if self.main:
+            return self.main
+        return self
+    
+    def sort_key(self):
+        score = 0
+        if self.is_raid_leader:
+            score+=2**16        
+        bit = 15
+        for role in constants.Roles:
+            if self.role == role:
+                score+=2**bit
+            bit-=1
+        for game_class in constants.Classes:
+            if self.game_class == game_class:
+                score+=2**bit
+            bit-=1
+        return score
+        
 
     def __repr__(self):
         return '<Raider {} {} {} {}-{}>'.format(self.name, self.game_class, self.role, self.realm, self.guild)
