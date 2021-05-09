@@ -32,8 +32,7 @@ def HandleRaidSplit():
         return redirect(url_for('login'))            
     raiders = Raider.query.filter_by(guild=current_user.guild, realm=current_user.realm)
     form = RaidSplitForm()
-    form.choices.choices = list(map(lambda x: (x.id, x.name), raiders))
-    
+    form.choices.choices = list(map(lambda x: (x.id, x.name), sorted(raiders, key=lambda x:x.sort_key(), reverse=True)))
     if not form.validate_on_submit():
         form.choices.data = list(map(lambda x: x.id, raiders))
     else:

@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% for raider in raiders %}
-    <div><p>{{ raider.name}} {{ raider.realm }}-{{ raider.guild }} {{ raider.game_class }} {{ raider.role }}</b></p></div>
-    {% endfor %}
     <h1>Add Remove Raider</h1>
+	<table>
+    {% for raider in raiders %}
+    	<tr><th>{{raider.name}}</th><th>{{raider.role}}</th><th>{{raider.game_class }}</th></tr>
+    {% endfor %}
+	</table>
     <form action="" method="post">
         {{ form.hidden_tag() }}
         <p>

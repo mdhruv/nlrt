@@ -98,6 +98,7 @@ def _update_main(selected_raider, main_string):
 
 def _get_all_mains(selected_raider):
     mains = Raider.query.filter_by(guild=current_user.guild, realm=current_user.realm).filter(~Raider.main.has())
+    mains = sorted(mains, key=lambda x:x.sort_key(), reverse=True)
     return list(filter(lambda x: x != selected_raider.name, map(lambda x: x.name, mains)))
     
     
@@ -105,6 +106,7 @@ def HandleAddRemoveRaider():
     if not current_user.is_authenticated:
         return redirect(url_for('login'))            
     raiders = Raider.query.all()
+    raiders = sorted(raiders, key=lambda x:x.sort_key(), reverse=True)
     form = AddRemoveRaiderForm()
     if form.validate_on_submit():
         if form.operation.data == 'Add':
@@ -118,7 +120,8 @@ def HandleUpdateRaider():
         return redirect(url_for('login'))
     form = UpdateRaiderForm()           
     raiders = Raider.query.filter_by(guild=current_user.guild, realm=current_user.realm)
-    if raiders.count() == 0:
+    raiders = sorted(raiders, key=lambda x:x.sort_key(), reverse=True)
+    if len(raiders) == 0:
         return redirect(url_for('add_remove_raider'))
     form.name.choices = list(map(lambda x: x.name, raiders))
     if form.validate_on_submit():
@@ -135,8 +138,6 @@ def HandleRaiderDetails(raider_name):
     if selected_raider is None:
         redirect(url_for('update_raider'))
     form = RaiderDetailForm() 
-    
-    mains = Raider.query.filter_by(guild=current_user.guild, realm=current_user.realm).filter(~Raider.main.has())
     form.main.choices = ['None'] + _get_all_mains(selected_raider)
     form.partner.choices = ['None'] + _get_all_mains(selected_raider)
 

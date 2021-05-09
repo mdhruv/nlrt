@@ -103,7 +103,7 @@ class Split:
                 for raid in self.raids:
                     if raider1 in raid.raiders and raider2 in raid.raiders:
                         loot_score+=1
-                        self.annotations["warning"].append("Raider %s and Raider %s both in Raid %s for item %s" % (raider1.name, raider2.name, raid.raid_id, loot))                   
+                        self.annotations["warning"].append("%s and %s both in the same raid for %s" % (raider1.name, raider2.name, loot))                   
         return loot_score
     
     def score(self, loot_dict):
@@ -252,10 +252,6 @@ def _parse_loot_string(loot_string, selected_raiders):
             loot_dict[loot] = raiders
     return loot_dict
             
-            
-            
-            
-
 def CalculateSplits(selected_raiders, req_string, loot_string, num_splits, num_sims):
     req_dict = _parse_req_string(req_string)
     loot_dict = _parse_loot_string(loot_string, selected_raiders)
