@@ -4,6 +4,7 @@ import itertools
 
 class Split:
     raids = []
+    bench = []
     split_id = 0
     is_valid = False
     mains = set()
@@ -12,6 +13,7 @@ class Split:
     def __init__(self, split_id):
         self.split_id = split_id
         self.raids = []
+        self.bench = []
         self.mains = set()
         self.annotations = {}
         self.annotations["info"] = []
@@ -106,6 +108,16 @@ class Split:
                         self.annotations["warning"].append("%s and %s both in the same raid for %s" % (raider1.name, raider2.name, loot))                   
         return loot_score
     
+    def create_bench(self, req_dict, raid_size):
+        self.bench = []
+        for raid in self.raids:
+            raid_bench = raid.create_bench(req_dict, raid_size)
+            if raid_bench is None:
+                self.is_valid = False
+                return None
+            self.bench.extend(raid_bench)
+        return self.bench
+    
     def score(self, loot_dict):
         self.balance_score = self.calculate_balance_score()
         self.social_score = self.calculate_social_score()
@@ -114,9 +126,9 @@ class Split:
         return self.total_score
     
     def normalize(self, balance_norm, social_norm, loot_norm):
-        self.balance_score = 1 - self.balance_score / balance_norm
-        self.social_score = 1 - self.social_score / social_norm
-        self.loot_score =  1 - self.loot_score / loot_norm
+        self.balance_score = 1 - self.balance_score / (balance_norm + 1)
+        self.social_score = 1 - self.social_score / (social_norm + 1)
+        self.loot_score =  1 - self.loot_score / (loot_norm + 1)
         self.total_score = (self.balance_score + self.social_score + self.loot_score) / 3
         self.annotations["info"].append("Total Score: %.4f" % self.total_score)
         self.annotations["info"].append("Balance Score: %.4f" % self.balance_score)
@@ -133,6 +145,7 @@ class Split:
             raid.raiders = sorted(raid.raiders, key=lambda x:x.sort_key(), reverse=True)
             title.append("Raid %s" % raid_num)
             raid_num+=1
+        title.append("Bench")
         title.append("Warnings")
         title.append("Info")
         table.append(title)
@@ -147,6 +160,11 @@ class Split:
                     data_added = True
                 else:
                     data.append("")
+            if len(self.bench) > index:
+                data.append(self.bench[index].name)
+                data_added = True
+            else:
+                data.append("")
             if len(self.annotations["warning"]) > index:
                 data.append(self.annotations["warning"][index])
                 data_added = True
@@ -202,22 +220,59 @@ class Raid:
         if raider.is_raid_leader:
             self.counts["Raid Leader"] = self.counts.get("Raid Leader", 0) + 1
 
+    def remove_raider(self, raider):
+        if raider not in self.raiders:
+            return
+        self.raiders.remove(raider)
+        self.mains_set.remove(raider.get_main())
+        self.counts["Total"] = self.counts.get("Total", 0) - 1
+        self.counts[raider.role] = self.counts.get(raider.role, 0) - 1
+        self.counts[raider.game_class] = self.counts.get(raider.game_class, 0) - 1
+        
+        if raider.profession1:
+            self.counts[raider.profession1] = self.counts.get(raider.profession1, 0) - 1
+        if raider.profession2:
+            self.counts[raider.profession2] = self.counts.get(raider.profession2, 0) - 1
+        
+        if raider.has_cooking:
+            self.counts["Cooking"] = self.counts.get("Cooking", 0) - 1
+        if raider.has_first_aid:
+            self.counts["First Aid"] = self.counts.get("First Aid", 0) - 1
+        if raider.has_fishing:
+            self.counts["Fishing"] = self.counts.get("Fishing", 0) - 1
+        if raider.is_raid_leader:
+            self.counts["Raid Leader"] = self.counts.get("Raid Leader", 0) - 1
+
     def get_size(self):
         return len(self.raiders)
     
     def validate(self, req_dict):
+        self.is_valid = False
         for req, num in req_dict.items():
             if self.counts.get(req, 0) < num:
                 self.is_valid = False
                 return False
         self.is_valid = True
         return True
+    
+    def create_bench(self, req_dict, raid_size):
+        bench_size = len(self.raiders) - raid_size
+        if bench_size <= 0:
+            return []
+        for _ in range(100):
+            raiders_to_remove_list = random.sample(self.raiders, bench_size)
+            for raider_removed in raiders_to_remove_list:
+                self.remove_raider(raider_removed)
+            if self.validate(req_dict):
+                return raiders_to_remove_list
+            for raider_removed in raiders_to_remove_list:
+                self.add_raider(raider_removed)
+        self.is_valid = False
+        return None
             
     def __repr__(self):
         raiders_str = ", ".join(list(map(lambda x:x.name, self.raiders)))
         return '<Raid(%s) %s>' % (self.raid_id, raiders_str)
-
-    
 
 def _parse_req_string(req_string):
     requirement_dict = {}
@@ -252,7 +307,7 @@ def _parse_loot_string(loot_string, selected_raiders):
             loot_dict[loot] = raiders
     return loot_dict
             
-def CalculateSplits(selected_raiders, req_string, loot_string, num_splits, num_sims):
+def CalculateSplits(selected_raiders, req_string, loot_string, num_splits, num_sims, raid_size):
     req_dict = _parse_req_string(req_string)
     loot_dict = _parse_loot_string(loot_string, selected_raiders)
     if req_dict == None or loot_dict == None:
@@ -265,6 +320,8 @@ def CalculateSplits(selected_raiders, req_string, loot_string, num_splits, num_s
         split = Split(i)
         split.populate_raids(selected_raiders, num_splits=num_splits)
         split.validate(req_dict)
+        if split.is_valid:
+            split.create_bench(req_dict, raid_size)
         if split.is_valid:
             split.score(loot_dict)
             valid_splits.append(split)

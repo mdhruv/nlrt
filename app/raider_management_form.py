@@ -79,7 +79,7 @@ def _update_partner(selected_raider, partner_string):
             old_partner.partner = None
         selected_raider.partner = None
         return ''
-    partner = Raider.query.filter_by(guild=current_user.guild, realm=current_user.realm).filter(func.lower(Raider.name) == partner_string).first()
+    partner = Raider.query.filter(Raider.name == partner_string).first()
     if partner is None or partner.name == selected_raider.name:
         return None
     selected_raider.partner = partner

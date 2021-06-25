@@ -39,6 +39,13 @@
 	            {% endfor %}
 	        </p>
 	        <p>
+	            {{ form.raid_size.label }}<br>
+	            {{ form.raid_size(size=10) }}<br>
+	            {% for error in form.raid_size.errors %}
+	            <span style="color: red;">[{{ error }}]</span>
+	            {% endfor %}
+	        </p>
+	        <p>
 	            {{ form.num_splits.label }}<br>
 	            {{ form.num_splits(size=10) }}<br>
 	            {% for error in form.num_splits.errors %}
